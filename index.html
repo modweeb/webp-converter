@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة ضغط حجم الصور وتحويل صيغتها</title>
+    <style>
+        body {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Arial', sans-serif;
+        }
+        .image-converter {
+            max-width: 500px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .image-converter h1 {
+            margin-bottom: 20px;
+        }
+        .image-converter input[type="file"],
+        .image-converter .styled-button,
+        .dimension-container input,
+        select {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+        }
+        .dimension-container {
+            display: flex;
+            flex-direction: column;
+            margin: 10px 0;
+        }
+        .dimension-container label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        #compression {
+            flex-grow: 1;
+        }
+        .size-info {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .styled-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .styled-button .icon {
+            margin-left: 5px;
+        }
+        .styled-button:hover {
+            background-color: #0056b3;
+        }
+        #originalImageContainer, #convertedImageContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="image-converter">
+    <h1>أداة ضغط حجم الصور وتحويل صيغتها</h1>
+    <input accept="image/*" id="upload" type="file" />
+    <div class="dimension-container">
+        <label>عرض الصورة:</label>
+        <input id="width" placeholder="مثال: 600" type="number" />
+        <label>ارتفاع الصورة:</label>
+        <input id="height" placeholder="مثال: 600" type="number" />
+    </div>
+    <div class="slider-container">
+        <label>مستوى الضغط:</label>
+        <input id="compression" max="100" type="range" value="50" />
+        <span class="size-info" id="compressionSize">حجم الصورة:</span>
+    </div>
+    <div>
+        <label>صيغة الصورة:</label>
+        <select id="format">
+            <option value="jpeg">JPEG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WEBP</option>
+        </select>
+    </div>
+    <div id="originalImageContainer">
+        <h3>الصورة الأصلية:</h3>
+        <img id="originalImage" style="max-width: 100%;" />
+        <p id="originalSize"></p>
+    </div>
+    <button class="styled-button" id="convert"><span class="icon">↻</span> تحويل الصورة</button>
+    <div id="convertedImageContainer" style="display: none;">
+        <h3>الصورة المحولة:</h3>
+        <img id="convertedImage" style="max-width: 100%;" />
+        <p id="convertedSize"></p>
+    </div>
+    <a class="styled-button" id="download" style="display: none;"><span class="icon">⇩</span> تحميل الصورة</a>
+</div>
+
+<script>
+function displayImageSize(dataUrl, elementId) {
+    fetch(dataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+            const size = (blob.size / 1024).toFixed(2);
+            document.getElementById(elementId).textContent = `حجم الصورة: ${size} كيلوبايت`;
+        });
+}
+
+document.getElementById('upload').addEventListener('change', function(event) {
+    const fileInput = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(fileInput);
+    reader.onload = function(e) {
+        const img = document.getElementById('originalImage');
+        img.src = e.target.result;
+
+        const originalSize = (fileInput.size / 1024).toFixed(2);
+        document.getElementById('originalSize').textContent = `حجم الصورة الأصلية: ${originalSize} كيلوبايت`;
+
+        document.getElementById('compression').addEventListener('input', updateConvertedSize);
+    };
+});
+
+document.getElementById('convert').addEventListener('click', function() {
+    convertImage();
+});
+
+function updateConvertedSize() {
+    const fileInput = document.getElementById('upload').files[0];
+    const width = document.getElementById('width').value;
+    const height = document.getElementById('height').value;
+    const compression = document.getElementById('compression').value;
+    const format = document.getElementById('format').value;
+
+    if (!fileInput) {
+        alert('الرجاء رفع صورة.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(fileInput);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width || img.width;
+            canvas.height = height || img.height;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL(`image/${format}`, compression / 100);
+
+            displayImageSize(dataUrl, 'compressionSize');
+        };
+    };
+}
+
+function convertImage() {
+    const fileInput = document.getElementById('upload').files[0];
+    const width = document.getElementById('width').value;
+    const height = document.getElementById('height').value;
+    const compression = document.getElementById('compression').value;
+    const format = document.getElementById('format').value;
+
+    if (!fileInput) {
+        alert('الرجاء رفع صورة.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(fileInput);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width || img.width;
+            canvas.height = height || img.height;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL(`image/${format}`, compression / 100);
+
+            const convertedImg = document.getElementById('convertedImage');
+            convertedImg.src = dataUrl;
+            const link = document.getElementById('download');
+            link.href = dataUrl;
+            link.download = `converted-image.${format}`;
+            link.style.display = 'block';
+            link.innerText = 'تحميل الصورة';
+            document.getElementById('convertedImageContainer').style.display = 'block';
+
+            displayImageSize(dataUrl, 'convertedSize');
+        };
+    };
+}
+</script>
+
+</body>
+</html>
