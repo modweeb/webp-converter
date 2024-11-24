@@ -9,26 +9,40 @@
             direction: rtl;
             text-align: right;
             font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
         }
         .image-converter {
             max-width: 500px;
             margin: 20px auto;
             background: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
         }
         .image-converter h1 {
             margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
         }
         .image-converter input[type="file"],
         .image-converter .styled-button,
         .dimension-container input,
         select {
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
         .dimension-container {
             display: flex;
@@ -53,23 +67,40 @@
             font-weight: bold;
         }
         .styled-button {
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
+            padding: 12px;
+            border-radius: 5px;
         }
         .styled-button .icon {
             margin-left: 5px;
+            font-size: 18px;
+            transition: transform 0.3s ease;
         }
         .styled-button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        .styled-button:hover .icon {
+            transform: rotate(360deg);
         }
         #originalImageContainer, #convertedImageContainer {
             margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            .image-converter {
+                padding: 15px;
+            }
+            .image-converter h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
